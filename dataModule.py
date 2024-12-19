@@ -40,23 +40,15 @@ class Analyze:
         for item in data:
             cursor.execute("SELECT COUNT(*) FROM StockData WHERE Symbol = ? AND Date = ?", (self.symbol, item['Date']))
             exists = cursor.fetchone()[0]
-            # check if already exists and update that item if it does
-            if exists:
-                update_query = """
-                UPDATE StockData
-                SET [Open] = ?, High = ?, Low = ?, [Close] = ?, Volume = ?
-                WHERE Symbol = ? AND Date = ?
-                """
-                cursor.execute(update_query, (item['Open'], item['High'], item['Low'], item['Close'], item['Volume'], item['Symbol'], item['Date']))
-            
-            else:
+            # add if it does not exist
+            if not exists:
                 sql_query = """
                 INSERT INTO StockData (Symbol, Date, [Open], High, Low, [Close], Volume)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """
                 # Execute the query with data values
                 cursor.execute(sql_query, (item['Symbol'], item['Date'], item['Open'], item['High'], item['Low'], item['Close'], item['Volume']))
-        
+                
         # Commit the transaction
         connection.commit()
         cursor.close()
